@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+.venv/
+venv/
+
+# JetBrains IDE (PyCharm)
+.idea/
+
+# Screenshots saved with the S key
+christmas_tree_*.png
+
+# macOS
+.DS_Store
