@@ -38,11 +38,11 @@ Y_OFF = 21.0                       # screen row of world y = 0
 XZ_FIX = (SY * CH / CW) / SX       # stretch so spheres look round on screen
 STAR_Y = 0.64
 FLOOR_Y = -1.75
-MSG_ROW = ROWS - 6                 # kept clear of the tree, gifts and snow
+MSG_ROW = ROWS - 6                 # kept clear of the tree and gifts
 TREE_TOP, TREE_HEIGHT = 0.55, 1.85  # world y of the tree tip and its height down to the lowest whorl
 
 # Point types
-NEEDLE, SNOW_TIP, LIGHT, TINSEL, BAUBLE, BOX, TRUNK, RIBBON, BOW, GROUND = range(10)
+NEEDLE, SNOW_TIP, LIGHT, TINSEL, BAUBLE, BOX, TRUNK, RIBBON, BOW = range(9)
 ORNAMENTS = (LIGHT, TINSEL, BAUBLE)
 GIFT_FACES = (BOX, RIBBON)
 
@@ -299,13 +299,6 @@ def create_tree():
               surface=surface[is_ribbon])
         q.add(bow @ rot.T + offset, ribbon_col, BOW, norm=bow_n @ rot.T)
 
-    # 8. Snowy ground under the tree
-    m_g = 1800
-    r_g = 1.15 * np.sqrt(rng.uniform(0, 1, m_g))
-    phi_g = rng.uniform(0, 2 * math.pi, m_g)
-    ground = np.column_stack([r_g * np.cos(phi_g), np.full(m_g, FLOOR_Y - 0.035), r_g * np.sin(phi_g)])
-    q.add(ground, SNOW, GROUND)
-
     return q.build()
 
 
@@ -378,7 +371,7 @@ LIGHT_DIR = np.array([0.3, 0.6, 0.74], dtype=np.float32)
 LIGHT_DIR /= np.linalg.norm(LIGHT_DIR)  # toward the camera and slightly above
 
 
-def shade(scene, visible, t, depth, rot_normals):
+def shade(scene, visible, t, rot_normals):
     """Glyph and RGB color of every visible point, computed per point type on whole arrays."""
     types = scene.types[visible]
     col = scene.cols[visible]
@@ -427,11 +420,6 @@ def shade(scene, visible, t, depth, rot_normals):
     m, d, idx_pt, c = part(BOW)
     chars[m] = "&"
     rgb[m] = c * (0.6 + 0.5 * d)[:, None]
-
-    # Snowy ground fades towards the back
-    m, d, idx_pt, c = part(GROUND)
-    chars[m] = np.where(idx_pt % 3 != 0, "_", ".")
-    rgb[m] = np.array(SNOW, dtype=np.float32) * (0.55 + 0.35 * (depth[idx_pt] + 1.15) / 2.3)[:, None]
 
     m, d, idx_pt, c = part(TRUNK)
     chars[m] = np.where(idx_pt % 3 != 0, "|", "!")
@@ -566,7 +554,7 @@ def main():
         angle = t * 0.30
         cell_r, cell_c, depth, rot_normals = project(scene, angle)
         visible = visible_points(scene, cell_r, cell_c, depth, rot_normals)
-        chars, rgb = shade(scene, visible, t, depth, rot_normals)
+        chars, rgb = shade(scene, visible, t, rot_normals)
         grid_char[cell_r[visible], cell_c[visible]] = chars
         grid_rgb[cell_r[visible], cell_c[visible]] = rgb
         active_letters = len(visible)

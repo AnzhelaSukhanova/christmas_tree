@@ -49,5 +49,6 @@ pip install -r requirements.txt
 
 ## Tweaking
 
-- Rotation speed: `angle = t * 0.70` in `main()` (radians per second).
+- Rotation speed: `angle = t * 0.30` in `main()` (radians per second, about 21 s per
+  full turn).
 - Greeting text: `MESSAGE` near the top of `main.py`.
